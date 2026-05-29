@@ -9,7 +9,10 @@ from cli_comfyui import help_text
 from cli_comfyui.commands import init_cmd
 from cli_comfyui.commands import result as result_cmd
 from cli_comfyui.commands import run as run_cmd
-from cli_comfyui.user_paths import get_default_config_path
+from cli_comfyui.user_paths import (
+    ensure_user_config_if_missing,
+    get_default_config_path,
+)
 
 
 def _build_parent_parser() -> argparse.ArgumentParser:
@@ -34,7 +37,20 @@ def _build_parent_parser() -> argparse.ArgumentParser:
     return parent
 
 
+def _argv_requests_help(argv: list[str] | None) -> bool:
+    args = argv if argv is not None else sys.argv[1:]
+    return "-h" in args or "--help" in args
+
+
 def main(argv: list[str] | None = None) -> int:
+    if _argv_requests_help(argv):
+        created = ensure_user_config_if_missing()
+        if created:
+            print(
+                f"Created default config: {get_default_config_path()}",
+                file=sys.stderr,
+            )
+
     parent = _build_parent_parser()
     parser = argparse.ArgumentParser(
         prog="comfyui-cli",

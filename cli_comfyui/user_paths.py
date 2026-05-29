@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import platform
 import sys
 from importlib import resources
 from pathlib import Path
@@ -57,30 +56,25 @@ def get_default_workflows_dir() -> Path:
 
 
 def get_config_path_help_lines() -> list[str]:
-    """Human-readable config paths for --help (macOS vs Windows)."""
+    """Human-readable config paths for --help (resolved on this machine)."""
     cfg = get_config_dir()
     cfg_file = get_default_config_path()
     wf = get_default_workflows_dir()
-    lines = [
+    selfhost = wf / "selfhost"
+    runninghub = wf / "runninghub"
+    return [
         "DEFAULT CONFIG (used when -c/--config is omitted; cwd does not matter)",
         "",
-        "  macOS / Linux:",
-        f"    Config dir:     {cfg}",
-        f"    config.json:    {cfg_file}",
-        f"    workflows/:     {wf}/selfhost/  and  {wf}/runninghub/",
+        f"  Config dir:   {cfg}",
+        f"  config.json:  {cfg_file}",
+        f"  workflows:    {selfhost}",
+        f"                {runninghub}",
         "",
-        "  Windows:",
-        f"    Config dir:     {cfg}",
-        f"    config.json:    {cfg_file}",
-        f"    workflows\\:    {wf}\\selfhost\\  and  {wf}\\runninghub\\",
-        "",
-        f"  Detected OS: {platform.system()} ({get_platform_kind()})",
-        "",
-        "  First run auto-creates the directory and config.json from template.",
+        "  Any --help auto-creates the directory and config.json if missing.",
+        "  First run/result also auto-creates when config is absent.",
         "  Override:  -c /path/to/config.json",
         "  Env:       COMFYUI_CLI_CONFIG=/path/to/config.json",
     ]
-    return lines
 
 
 def _read_bundled_example() -> dict:
@@ -98,19 +92,39 @@ def _read_bundled_example() -> dict:
     return data
 
 
+def ensure_user_config_layout() -> None:
+    """Create config dir and workflows subdirs if missing."""
+    config_dir = get_config_dir()
+    workflows_dir = get_default_workflows_dir()
+    config_dir.mkdir(parents=True, exist_ok=True)
+    (workflows_dir / "selfhost").mkdir(parents=True, exist_ok=True)
+    (workflows_dir / "runninghub").mkdir(parents=True, exist_ok=True)
+
+
+def ensure_user_config_if_missing() -> bool:
+    """
+    Ensure user config directory and config.json exist.
+
+    Returns:
+        True if config.json was newly created, False if it already existed.
+    """
+    ensure_user_config_layout()
+    if get_default_config_path().exists():
+        return False
+    init_user_config(force=False)
+    return True
+
+
 def init_user_config(force: bool = False) -> Path:
     """
     Create config dir, workflows subdirs, and config.json if missing.
 
     Returns path to config.json.
     """
-    config_dir = get_config_dir()
     config_path = get_default_config_path()
     workflows_dir = get_default_workflows_dir()
 
-    config_dir.mkdir(parents=True, exist_ok=True)
-    (workflows_dir / "selfhost").mkdir(parents=True, exist_ok=True)
-    (workflows_dir / "runninghub").mkdir(parents=True, exist_ok=True)
+    ensure_user_config_layout()
 
     if config_path.exists() and not force:
         return config_path

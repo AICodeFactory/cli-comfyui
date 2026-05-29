@@ -48,7 +48,7 @@ MAIN_DESCRIPTION = """\
 comfyui-cli — execute ComfyUI workflows and query results (JSON in/out).
 
 Subcommands:
-  init    Create ~/.config/comfyui-cli (macOS/Linux) or %APPDATA%\\comfyui-cli (Windows)
+  init    Create user config directory and config.json (paths in --help)
   run     Submit & execute a workflow (blocking by default)
   result  Query execution result by prompt_id (selfhost only)
 

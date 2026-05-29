@@ -31,7 +31,7 @@ def add_parser(
 ) -> None:
     parser = subparsers.add_parser(
         "init",
-        help="Create user config dir and config.json (macOS/Windows/Linux)",
+        help="Create user config dir and config.json (paths in comfyui-cli --help)",
         parents=parents or [],
     )
     parser.add_argument(
