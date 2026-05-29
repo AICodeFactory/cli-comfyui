@@ -11,6 +11,7 @@ from loguru import logger
 from cli_comfyui import help_text
 from cli_comfyui.comfyui_api import submit_workflow
 from cli_comfyui.config import load_config
+from cli_comfyui.user_paths import resolve_config_path
 from cli_comfyui.kit_client import execute_workflow
 from cli_comfyui.output import OutputFormat, emit_result, from_execute_result, result_to_dict
 from cli_comfyui.workflow import resolve_workflow
@@ -33,7 +34,7 @@ def _load_params(args: argparse.Namespace) -> dict[str, Any]:
 
 def run_command(args: argparse.Namespace) -> int:
     """Execute run subcommand."""
-    config_path = Path(args.config).resolve()
+    config_path = resolve_config_path(args.config)
     try:
         config = load_config(config_path)
     except (FileNotFoundError, ValueError, json.JSONDecodeError) as exc:
@@ -86,26 +87,17 @@ def run_command(args: argparse.Namespace) -> int:
     return 0
 
 
-def add_parser(subparsers: argparse._SubParsersAction) -> None:
+def add_parser(
+    subparsers: argparse._SubParsersAction,
+    parents: list[argparse.ArgumentParser] | None = None,
+) -> None:
     parser = subparsers.add_parser(
         "run",
         help=help_text.SUBCOMMAND_SUMMARY["run"],
         description=help_text.RUN_DESCRIPTION,
         epilog=help_text.RUN_EPILOG,
         formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    parser.add_argument(
-        "-c",
-        "--config",
-        default="config.json",
-        metavar="FILE",
-        help="JSON config (comfyui_url, workflows_dir, runninghub_api_key)",
-    )
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help="Debug logs to stderr",
+        parents=parents or [],
     )
     parser.add_argument(
         "-w",

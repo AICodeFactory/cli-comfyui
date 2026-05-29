@@ -67,9 +67,9 @@ class CliConfig(BaseModel):
 
 def load_config(config_path: str | Path) -> CliConfig:
     """Load configuration from a JSON file."""
-    path = Path(config_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Config file not found: {path}")
+    from cli_comfyui.user_paths import ensure_config_exists
+
+    path = ensure_config_exists(Path(config_path))
 
     with open(path, encoding="utf-8") as f:
         data = json.load(f)

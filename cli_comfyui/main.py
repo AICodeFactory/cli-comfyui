@@ -6,44 +6,54 @@ import sys
 from loguru import logger
 
 from cli_comfyui import help_text
+from cli_comfyui.commands import init_cmd
 from cli_comfyui.commands import result as result_cmd
 from cli_comfyui.commands import run as run_cmd
+from cli_comfyui.user_paths import get_default_config_path
 
 
-def _common_arguments(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument(
+def _build_parent_parser() -> argparse.ArgumentParser:
+    parent = argparse.ArgumentParser(add_help=False)
+    default_cfg = str(get_default_config_path())
+    parent.add_argument(
         "-c",
         "--config",
-        default="config.json",
+        default=None,
         metavar="FILE",
-        help="JSON config path (comfyui_url, workflows_dir, API keys). Default: ./config.json",
+        help=(
+            f"JSON config path. Default (omit -c): user config at {default_cfg} "
+            "(auto-created; platform paths in --help)"
+        ),
     )
-    parser.add_argument(
+    parent.add_argument(
         "-v",
         "--verbose",
         action="store_true",
         help="Debug logs to stderr (stdout stays JSON only)",
     )
+    return parent
 
 
 def main(argv: list[str] | None = None) -> int:
+    parent = _build_parent_parser()
     parser = argparse.ArgumentParser(
         prog="comfyui-cli",
         description=help_text.MAIN_DESCRIPTION,
-        epilog=help_text.MAIN_EPILOG,
+        epilog=help_text.build_main_epilog(),
         formatter_class=argparse.RawDescriptionHelpFormatter,
+        parents=[parent],
     )
-    _common_arguments(parser)
 
     subparsers = parser.add_subparsers(
         dest="command",
         required=True,
         title="subcommands",
         metavar="COMMAND",
-        description="run | result — use: comfyui-cli COMMAND --help for request/response schema",
+        description="init | run | result — use: comfyui-cli COMMAND --help",
     )
-    run_cmd.add_parser(subparsers)
-    result_cmd.add_parser(subparsers)
+    init_cmd.add_parser(subparsers, parents=[parent])
+    run_cmd.add_parser(subparsers, parents=[parent])
+    result_cmd.add_parser(subparsers, parents=[parent])
 
     args = parser.parse_args(argv)
 

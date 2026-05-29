@@ -10,12 +10,13 @@ from loguru import logger
 from cli_comfyui import help_text
 from cli_comfyui.comfyui_api import fetch_history_result
 from cli_comfyui.config import load_config
+from cli_comfyui.user_paths import resolve_config_path
 from cli_comfyui.output import OutputFormat, emit_result
 
 
 def result_command(args: argparse.Namespace) -> int:
     """Execute result subcommand."""
-    config_path = Path(args.config).resolve()
+    config_path = resolve_config_path(args.config)
     try:
         config = load_config(config_path)
     except (FileNotFoundError, ValueError, json.JSONDecodeError) as exc:
@@ -49,26 +50,17 @@ def result_command(args: argparse.Namespace) -> int:
     return 1
 
 
-def add_parser(subparsers: argparse._SubParsersAction) -> None:
+def add_parser(
+    subparsers: argparse._SubParsersAction,
+    parents: list[argparse.ArgumentParser] | None = None,
+) -> None:
     parser = subparsers.add_parser(
         "result",
         help=help_text.SUBCOMMAND_SUMMARY["result"],
         description=help_text.RESULT_DESCRIPTION,
         epilog=help_text.RESULT_EPILOG,
         formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    parser.add_argument(
-        "-c",
-        "--config",
-        default="config.json",
-        metavar="FILE",
-        help="JSON config; must include comfyui_url for /history API",
-    )
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help="Debug logs to stderr",
+        parents=parents or [],
     )
     parser.add_argument(
         "--prompt-id",

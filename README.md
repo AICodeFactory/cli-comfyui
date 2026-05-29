@@ -67,13 +67,28 @@ pip install cli_comfyui-0.1.0-py3-none-any.whl
 
 ## 配置
 
-复制示例配置并修改：
+**不依赖当前工作目录。** 首次执行 `run` / `result` 会自动创建用户配置目录；也可手动初始化：
 
 ```bash
-cp config.example.json config.json
+comfyui-cli init
+comfyui-cli --help   # 查看本机实际路径（含 macOS / Windows 说明）
 ```
 
-`config.example.json` 字段说明：
+| 系统 | 配置目录 | 配置文件 |
+|------|----------|----------|
+| **macOS / Linux** | `~/.config/comfyui-cli/` | `~/.config/comfyui-cli/config.json` |
+| **Windows** | `%APPDATA%\comfyui-cli\` | `%APPDATA%\comfyui-cli\config.json` |
+
+工作流 JSON 默认放在配置目录下的 `workflows/selfhost/` 与 `workflows/runninghub/`（`init` 会创建空目录）。编辑 `config.json` 中的 `comfyui_url`、`workflows_dir` 等。
+
+覆盖默认路径：
+
+```bash
+comfyui-cli -c /path/to/config.json run ...
+export COMFYUI_CLI_CONFIG=/path/to/config.json
+```
+
+`config.json` 字段说明：
 
 | 字段 | 说明 |
 |------|------|
