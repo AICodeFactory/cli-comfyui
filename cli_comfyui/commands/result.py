@@ -7,6 +7,7 @@ from pathlib import Path
 
 from loguru import logger
 
+from cli_comfyui import help_text
 from cli_comfyui.comfyui_api import fetch_history_result
 from cli_comfyui.config import load_config
 from cli_comfyui.output import OutputFormat, emit_result
@@ -51,41 +52,49 @@ def result_command(args: argparse.Namespace) -> int:
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "result",
-        help="Query workflow result by prompt_id (selfhost ComfyUI)",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        help=help_text.SUBCOMMAND_SUMMARY["result"],
+        description=help_text.RESULT_DESCRIPTION,
+        epilog=help_text.RESULT_EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "-c",
         "--config",
         default="config.json",
-        help="Path to JSON config file",
+        metavar="FILE",
+        help="JSON config; must include comfyui_url for /history API",
     )
     parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
-        help="Enable debug logging",
+        help="Debug logs to stderr",
     )
     parser.add_argument(
         "--prompt-id",
         required=True,
-        help="ComfyUI prompt_id returned from run --no-wait",
+        metavar="ID",
+        help=(
+            "ComfyUI prompt_id (UUID). From run --no-wait response.prompt_id "
+            "or blocking run response.prompt_id"
+        ),
     )
     parser.add_argument(
         "--queue",
         action="store_true",
-        help="Include current /queue status in output",
+        help="Include ComfyUI GET /queue body in response.queue (optional)",
     )
     parser.add_argument(
         "-o",
         "--output",
         default=None,
-        help="Write result JSON to file instead of stdout",
+        metavar="FILE",
+        help="Write response JSON to FILE (default: stdout)",
     )
     parser.add_argument(
         "--format",
         choices=["json", "text"],
         default="json",
-        help="Output format (default: json)",
+        help='Output encoding: json (machine) or text (human). Default: json',
     )
     parser.set_defaults(func=result_command)

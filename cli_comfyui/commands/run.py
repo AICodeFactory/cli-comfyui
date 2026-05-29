@@ -8,8 +8,9 @@ from typing import Any
 
 from loguru import logger
 
+from cli_comfyui import help_text
 from cli_comfyui.comfyui_api import submit_workflow
-from cli_comfyui.config import CliConfig, load_config
+from cli_comfyui.config import load_config
 from cli_comfyui.kit_client import execute_workflow
 from cli_comfyui.output import OutputFormat, emit_result, from_execute_result, result_to_dict
 from cli_comfyui.workflow import resolve_workflow
@@ -88,53 +89,69 @@ def run_command(args: argparse.Namespace) -> int:
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "run",
-        help="Execute a ComfyUI workflow",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        help=help_text.SUBCOMMAND_SUMMARY["run"],
+        description=help_text.RUN_DESCRIPTION,
+        epilog=help_text.RUN_EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "-c",
         "--config",
         default="config.json",
-        help="Path to JSON config file",
+        metavar="FILE",
+        help="JSON config (comfyui_url, workflows_dir, runninghub_api_key)",
     )
     parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
-        help="Enable debug logging",
+        help="Debug logs to stderr",
     )
     parser.add_argument(
         "-w",
         "--workflow",
         required=True,
-        help="Workflow key (e.g. selfhost/image_flux.json) or file path",
+        metavar="WORKFLOW",
+        help=(
+            "Workflow key under workflows_dir (e.g. selfhost/image_flux.json) "
+            "or path to .json; runninghub/* needs workflow_id wrapper in file"
+        ),
     )
     parser.add_argument(
         "-p",
         "--params",
         default=None,
-        help='Workflow parameters as JSON string, e.g. \'{"prompt":"a cat"}\'',
+        metavar="JSON",
+        help=(
+            'Workflow inputs as JSON object. Example: \'{"prompt":"a cat","width":1024}\'. '
+            "Keys match ComfyKit DSL in workflow node titles ($prompt, $width!, etc.)"
+        ),
     )
     parser.add_argument(
         "--params-file",
         default=None,
-        help="Path to JSON file with workflow parameters",
+        metavar="FILE",
+        help="Path to JSON file (object) with same keys as -p/--params",
     )
     parser.add_argument(
         "--no-wait",
         action="store_true",
-        help="Submit only (selfhost); print prompt_id without waiting",
+        help=(
+            "selfhost only: POST /prompt, return immediately. "
+            'Response status="submitted" + prompt_id; poll with: result --prompt-id ID'
+        ),
     )
     parser.add_argument(
         "-o",
         "--output",
         default=None,
-        help="Write result JSON to file instead of stdout",
+        metavar="FILE",
+        help="Write response JSON to FILE (default: stdout)",
     )
     parser.add_argument(
         "--format",
         choices=["json", "text"],
         default="json",
-        help="Output format (default: json)",
+        help='Output encoding: json (machine) or text (human). Default: json',
     )
     parser.set_defaults(func=run_command)
