@@ -1,0 +1,8 @@
+{
+  "comfyui_url": "http://127.0.0.1:8188",
+  "comfyui_api_key": "",
+  "runninghub_api_key": "",
+  "runninghub_instance_type": "",
+  "workflows_dir": "./workflows",
+  "timeout_seconds": 300
+}
