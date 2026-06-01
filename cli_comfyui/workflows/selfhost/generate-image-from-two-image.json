@@ -1,0 +1,447 @@
+{
+    "76":
+    {
+        "inputs":
+        {
+            "image": "Test.jpg"
+        },
+        "class_type": "LoadImage",
+        "_meta":
+        {
+            "title": "$~image1.image!"
+        }
+    },
+    "81":
+    {
+        "inputs":
+        {
+            "image": "Test2.png"
+        },
+        "class_type": "LoadImage",
+        "_meta":
+        {
+            "title": "$~image2.image!"
+        }
+    },
+    "94":
+    {
+        "inputs":
+        {
+            "filename_prefix": "Flux2-Klein",
+            "images":
+            [
+                "92:105",
+                0
+            ]
+        },
+        "class_type": "SaveImage",
+        "_meta":
+        {
+            "title": "保存图像"
+        }
+    },
+    "92:101":
+    {
+        "inputs":
+        {
+            "sampler_name": "euler"
+        },
+        "class_type": "KSamplerSelect",
+        "_meta":
+        {
+            "title": "K采样器选择"
+        }
+    },
+    "92:102":
+    {
+        "inputs":
+        {
+            "steps": 4,
+            "width":
+            [
+                "92:114",
+                0
+            ],
+            "height":
+            [
+                "92:114",
+                1
+            ]
+        },
+        "class_type": "Flux2Scheduler",
+        "_meta":
+        {
+            "title": "Flux2调度器"
+        }
+    },
+    "92:103":
+    {
+        "inputs":
+        {
+            "cfg": 1,
+            "model":
+            [
+                "92:107",
+                0
+            ],
+            "positive":
+            [
+                "92:84:120",
+                0
+            ],
+            "negative":
+            [
+                "92:84:118",
+                0
+            ]
+        },
+        "class_type": "CFGGuider",
+        "_meta":
+        {
+            "title": "CFG引导器"
+        }
+    },
+    "92:104":
+    {
+        "inputs":
+        {
+            "noise":
+            [
+                "92:106",
+                0
+            ],
+            "guider":
+            [
+                "92:103",
+                0
+            ],
+            "sampler":
+            [
+                "92:101",
+                0
+            ],
+            "sigmas":
+            [
+                "92:102",
+                0
+            ],
+            "latent_image":
+            [
+                "92:113",
+                0
+            ]
+        },
+        "class_type": "SamplerCustomAdvanced",
+        "_meta":
+        {
+            "title": "自定义采样器（高级）"
+        }
+    },
+    "92:105":
+    {
+        "inputs":
+        {
+            "samples":
+            [
+                "92:104",
+                0
+            ],
+            "vae":
+            [
+                "92:110",
+                0
+            ]
+        },
+        "class_type": "VAEDecode",
+        "_meta":
+        {
+            "title": "VAE解码"
+        }
+    },
+    "92:106":
+    {
+        "inputs":
+        {
+            "noise_seed": 971918169519713
+        },
+        "class_type": "RandomNoise",
+        "_meta":
+        {
+            "title": "随机噪波"
+        }
+    },
+    "92:107":
+    {
+        "inputs":
+        {
+            "unet_name": "flux-2-klein-base-4b-fp8.safetensors",
+            "weight_dtype": "default"
+        },
+        "class_type": "UNETLoader",
+        "_meta":
+        {
+            "title": "UNet加载器"
+        }
+    },
+    "92:108":
+    {
+        "inputs":
+        {
+            "clip_name": "qwen_3_4b.safetensors",
+            "type": "flux2",
+            "device": "default"
+        },
+        "class_type": "CLIPLoader",
+        "_meta":
+        {
+            "title": "加载CLIP"
+        }
+    },
+    "92:110":
+    {
+        "inputs":
+        {
+            "vae_name": "flux2-vae.safetensors"
+        },
+        "class_type": "VAELoader",
+        "_meta":
+        {
+            "title": "加载VAE"
+        }
+    },
+    "92:111":
+    {
+        "inputs":
+        {
+            "upscale_method": "nearest-exact",
+            "megapixels": 1,
+            "resolution_steps": 1,
+            "image":
+            [
+                "76",
+                0
+            ]
+        },
+        "class_type": "ImageScaleToTotalPixels",
+        "_meta":
+        {
+            "title": "缩放图像（像素）"
+        }
+    },
+    "92:85":
+    {
+        "inputs":
+        {
+            "upscale_method": "nearest-exact",
+            "megapixels": 1,
+            "resolution_steps": 1,
+            "image":
+            [
+                "81",
+                0
+            ]
+        },
+        "class_type": "ImageScaleToTotalPixels",
+        "_meta":
+        {
+            "title": "缩放图像（像素）"
+        }
+    },
+    "92:112:115":
+    {
+        "inputs":
+        {
+            "conditioning":
+            [
+                "92:86",
+                0
+            ],
+            "latent":
+            [
+                "92:112:116",
+                0
+            ]
+        },
+        "class_type": "ReferenceLatent",
+        "_meta":
+        {
+            "title": "参考Latent"
+        }
+    },
+    "92:112:116":
+    {
+        "inputs":
+        {
+            "pixels":
+            [
+                "92:111",
+                0
+            ],
+            "vae":
+            [
+                "92:110",
+                0
+            ]
+        },
+        "class_type": "VAEEncode",
+        "_meta":
+        {
+            "title": "VAE编码"
+        }
+    },
+    "92:112:117":
+    {
+        "inputs":
+        {
+            "conditioning":
+            [
+                "92:109",
+                0
+            ],
+            "latent":
+            [
+                "92:112:116",
+                0
+            ]
+        },
+        "class_type": "ReferenceLatent",
+        "_meta":
+        {
+            "title": "参考Latent"
+        }
+    },
+    "92:84:118":
+    {
+        "inputs":
+        {
+            "conditioning":
+            [
+                "92:112:115",
+                0
+            ],
+            "latent":
+            [
+                "92:84:119",
+                0
+            ]
+        },
+        "class_type": "ReferenceLatent",
+        "_meta":
+        {
+            "title": "参考Latent"
+        }
+    },
+    "92:84:119":
+    {
+        "inputs":
+        {
+            "pixels":
+            [
+                "92:85",
+                0
+            ],
+            "vae":
+            [
+                "92:110",
+                0
+            ]
+        },
+        "class_type": "VAEEncode",
+        "_meta":
+        {
+            "title": "VAE编码"
+        }
+    },
+    "92:84:120":
+    {
+        "inputs":
+        {
+            "conditioning":
+            [
+                "92:112:117",
+                0
+            ],
+            "latent":
+            [
+                "92:84:119",
+                0
+            ]
+        },
+        "class_type": "ReferenceLatent",
+        "_meta":
+        {
+            "title": "参考Latent"
+        }
+    },
+    "92:86":
+    {
+        "inputs":
+        {
+            "conditioning":
+            [
+                "92:109",
+                0
+            ]
+        },
+        "class_type": "ConditioningZeroOut",
+        "_meta":
+        {
+            "title": "条件零化"
+        }
+    },
+    "92:113":
+    {
+        "inputs":
+        {
+            "width":
+            [
+                "92:114",
+                0
+            ],
+            "height":
+            [
+                "92:114",
+                1
+            ],
+            "batch_size": 1
+        },
+        "class_type": "EmptyFlux2LatentImage",
+        "_meta":
+        {
+            "title": "空Latent图像（Flux2）"
+        }
+    },
+    "92:114":
+    {
+        "inputs":
+        {
+            "image":
+            [
+                "92:111",
+                0
+            ]
+        },
+        "class_type": "GetImageSize",
+        "_meta":
+        {
+            "title": "获取图像尺寸"
+        }
+    },
+    "92:109":
+    {
+        "inputs":
+        {
+            "text": "Change the character in the first image to the female depicted in the reference image",
+            "clip":
+            [
+                "92:108",
+                0
+            ]
+        },
+        "class_type": "CLIPTextEncode",
+        "_meta":
+        {
+            "title": "$prompt.text!"
+        }
+    }
+}
